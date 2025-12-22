@@ -1,0 +1,63 @@
+name: Fetch Steam Manifest Batch
+
+# ⬅️ WAJIB: izinkan GitHub Actions menulis ke repo
+permissions:
+  contents: write
+
+on:
+  workflow_dispatch:        # bisa run manual
+  schedule:
+    - cron: "0 * * * *"     # otomatis tiap 1 jam (jam bulat)
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+
+    steps:
+      # =========================
+      # Checkout repo
+      # =========================
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      # =========================
+      # Setup Python
+      # =========================
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      # =========================
+      # Install dependencies
+      # =========================
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install requests
+
+      # =========================
+      # Run fetch script
+      # =========================
+      - name: Run fetch script
+        run: |
+          python scripts/fetch_batch.py
+
+      # =========================
+      # Commit & push (PROFILE HIJAU)
+      # =========================
+      - name: Commit changes (if any)
+        run: |
+          # 🔑 IDENTITAS KAMU (BUKAN BOT)
+          git config user.name "Adi"
+          git config user.email "145580040+adii83@users.noreply.github.com"
+
+          if [[ -n "$(git status --porcelain)" ]]; then
+            git add zips state
+            git commit -m "batch: update steam manifest data"
+            git push
+          else
+            echo "No changes to commit"
+          fi
