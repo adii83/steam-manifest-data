@@ -19,9 +19,9 @@ os.makedirs(ZIP_DIR, exist_ok=True)
 # =========================
 # CONFIG
 # =========================
-BATCH_SIZE = 5                  # test lokal (production: 100)
+BATCH_SIZE = 100                  # test lokal (production: 100)
 REQUEST_DELAY = 3.0             # jeda antar API fallback
-APPID_DELAY = 20              # ⬅️ JEDA ANTAR APPID (INI KUNCI)
+APPID_DELAY = 8              # ⬅️ JEDA ANTAR APPID (INI KUNCI)
 REQUEST_TIMEOUT = 30
 
 
