@@ -5,9 +5,9 @@ permissions:
   contents: write
 
 on:
-  workflow_dispatch:        # bisa run manual
+  workflow_dispatch: # bisa run manual
   schedule:
-    - cron: "0 * * * *"     # otomatis tiap 1 jam (jam bulat)
+    - cron: "0 * * * *" # otomatis tiap 1 jam (jam bulat)
 
 jobs:
   fetch:
@@ -46,6 +46,30 @@ jobs:
           python scripts/fetch_batch.py
 
       # =========================
+      # Create Token File
+      # =========================
+      - name: Create Token File
+        env:
+          GDRIVE_TOKEN: ${{ secrets.GDRIVE_TOKEN }}
+        run: |
+          echo "$GDRIVE_TOKEN" > config/token.json
+
+      # =========================
+      # Run Upload script
+      # =========================
+      - name: Run GDrive Upload
+        run: |
+          python scripts/gdrive_upload.py
+
+      # =========================
+      # Cleanup Credentials
+      # =========================
+      - name: Remove Credentials
+        if: always()
+        run: |
+          rm config/token.json
+
+      # =========================
       # Commit & push (PROFILE HIJAU)
       # =========================
       - name: Commit changes (if any)
@@ -55,8 +79,9 @@ jobs:
           git config user.email "145580040+adii83@users.noreply.github.com"
 
           if [[ -n "$(git status --porcelain)" ]]; then
-            git add zips state
-            git commit -m "batch: update steam manifest data"
+            # Hanya add state, ignore zips
+            git add state
+            git commit -m "batch: update steam manifest data [skip ci]"
             git push
           else
             echo "No changes to commit"

@@ -1,0 +1,7 @@
+__pycache__/
+*.zip
+config/service_account.json
+zips/*
+!zips/.gitkeep
+config/token.json
+config/credentials.json
