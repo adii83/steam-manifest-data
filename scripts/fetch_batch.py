@@ -19,9 +19,9 @@ os.makedirs(ZIP_DIR, exist_ok=True)
 # =========================
 # CONFIG
 # =========================
-BATCH_SIZE = 100                  # test lokal (production: 100)
+BATCH_SIZE = 5                  # test lokal (production: 100)
 REQUEST_DELAY = 3.0             # jeda antar API fallback
-APPID_DELAY = 8.0              # ⬅️ JEDA ANTAR APPID (INI KUNCI)
+APPID_DELAY = 20              # ⬅️ JEDA ANTAR APPID (INI KUNCI)
 REQUEST_TIMEOUT = 30
 
 
@@ -116,7 +116,9 @@ for i, appid in enumerate(batch_appids):
             except requests.RequestException as e:
                 print(f"[ERROR] {appid} {api['name']} → {e}")
 
-            time.sleep(REQUEST_DELAY)
+            # Use API-specific delay if defined, otherwise fallback to global
+            delay = api.get("custom_delay", REQUEST_DELAY)
+            time.sleep(delay)
 
         if not found:
             print(f"[FAIL] {appid} not found in any API")

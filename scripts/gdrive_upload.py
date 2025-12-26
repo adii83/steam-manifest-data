@@ -42,6 +42,21 @@ def load_config():
     with open(CONFIG_PATH, 'r') as f:
         return json.load(f)
 
+
+def check_file_exists(service, file_name, folder_id):
+    """Checks if a file with the same name exists in the folder."""
+    query = f"name = '{file_name}' and '{folder_id}' in parents and trashed = false"
+    try:
+        results = service.files().list(q=query, fields="files(id, name)").execute()
+        files = results.get('files', [])
+        if files:
+            print(f"[SKIP] File {file_name} already exists in Drive (ID: {files[0]['id']})")
+            return files[0]['id']
+        return None
+    except Exception as e:
+        print(f"[WARN] Failed to check file existence: {e}")
+        return None
+
 def upload_file(service, file_path, folder_id):
     """Uploads a file to Google Drive and returns the file ID."""
     file_name = os.path.basename(file_path)
@@ -107,8 +122,15 @@ def main():
     for filename in files:
         file_path = os.path.join(ZIP_DIR, filename)
         
-        # Upload
-        file_id = upload_file(service, file_path, folder_id)
+        # Check duplication
+        existing_id = check_file_exists(service, filename, folder_id)
+        
+        if existing_id:
+            # File exists, treat as success (for cleanup purposes)
+            file_id = existing_id
+        else:
+            # Upload
+            file_id = upload_file(service, file_path, folder_id)
         
         if file_id:
             # Delete local file only if upload successful
