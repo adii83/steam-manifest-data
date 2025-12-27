@@ -19,7 +19,7 @@ os.makedirs(ZIP_DIR, exist_ok=True)
 # =========================
 # CONFIG
 # =========================
-BATCH_SIZE = 100                  # test lokal (production: 100)
+BATCH_SIZE = 50                  # test lokal (production: 100)
 REQUEST_DELAY = 4.0             # jeda antar API fallback
 APPID_DELAY = 25              # ⬅️ JEDA ANTAR APPID (INI KUNCI)
 REQUEST_TIMEOUT = 30
@@ -109,6 +109,10 @@ for i, appid in enumerate(batch_appids):
 
                 elif resp.status_code == api["unavailable_code"]:
                     print(f"[MISS] {appid} not in {api['name']}")
+
+                elif resp.status_code == 429:
+                    print(f"[RATE LIMITED] {api['name']} returned 429. Cooling down 60s...")
+                    time.sleep(60)
 
                 else:
                     print(f"[WARN] {appid} {api['name']} returned {resp.status_code}")
